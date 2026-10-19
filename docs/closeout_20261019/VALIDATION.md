@@ -28,3 +28,9 @@
 10月16日两轮v8实际模型使用、既有成功整场/H及失败回放均留在历史报告。CAPTURE改类退出补丁有部署及192项离线检查，未取得修复后新实飞。EV预测保持冻结；导航恢复和H其他候选模式保留其研究状态。新机的外参、舵机标定、CPU绑定、SDK/NPU驱动版本、场地和模式仍需按下一届指南核实。
 
 本次归档是完整可追溯工程交接，不是重新签发所有候选功能的飞行验收。
+
+## 精简机载运行包独立复验
+
+按新的运行目录清单复制到独立/tmp工作区，未携带原工程build/devel、旧工程副本、uav_vision_eval或仿真世界。执行deployment/competition/build.sh，视觉和导航依赖全部重新编译退出0；该验证仍为本机WSL/x86，不替代目标板ARM构建。
+
+在精简目录里，03/04/08/10牛耕/10回字形使用check-config、generate-config和reference-fc均成功生成runtime/control/overrides。额外保留专项生成器实际依赖的一份fast_runtime.yaml，避免仅静态check通过却在运行时缺模板。

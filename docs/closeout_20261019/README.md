@@ -45,3 +45,7 @@ EV预测保持冻结；本次没有把FAST_LIO预测研究改动混入main。导
 ## 最终分发范围
 
 传承包仅包含工程、模型、工具及技术文档；个人材料不包含在内。2026-10-19已按用户授权清除本轮误推材料的Git可达历史，竞赛原始开发提交保留。最终标签为`chore/competition-final-20261019`，实际压缩包版本以ARCHIVE_MANIFEST.json为准。
+
+最终机载传承分发范围按ONBOARD_QUICKSTART.md：只带当前运行工程、推理模型、工具与必要说明；旧源码副本、历史Git备份、训练数据和大批报告不塞进运行包。
+
+机载运行范围的最终发行标签：`chore/onboard-handover-runtime-20261019`。整机包与Windows/WSL工作台单独放在`/home/xhj/liftrace-deliverables/onboard_delivery_20261019/`，该目录可用于传承分发；历史备份和训练包仍在独立结项目录。

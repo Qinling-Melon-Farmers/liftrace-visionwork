@@ -5,8 +5,8 @@ DEST="${1:?usage: package.sh /absolute/output.tar}"
 [[ "$DEST" = /* ]] || { echo "Output must be absolute" >&2; exit 2; }
 [[ ! -e "$DEST" ]] || { echo "Output already exists" >&2; exit 2; }
 # 完整部署包必须携带最终五分类权重和类别契约；缺资产时直接报错。
-MODEL_REL=runtime_models/flight_5cls_20260928_fp16.rknn
-METADATA_REL=vision_ws/src/uav_vision/config/flight_5cls_20260928_metadata.yaml
+MODEL_REL=runtime_models/flight_5cls_new_video_v8_20261011/flight_5cls_new_video_v8_20261011_fp16.rknn
+METADATA_REL=vision_ws/src/uav_vision/config/flight_5cls_new_video_v8_20261011_metadata.yaml
 for asset in "$MODEL_REL" "$METADATA_REL"; do
   [[ -s "$ROOT/$asset" ]] || { echo "Missing deployment asset: $ROOT/$asset" >&2; exit 2; }
 done
